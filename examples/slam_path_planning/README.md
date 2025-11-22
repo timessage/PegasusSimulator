@@ -8,36 +8,48 @@
 
 ### 项目简介
 
-这是一个完整的SLAM（同步定位与建图）和路径规划项目，基于Pegasus Simulator开发。该项目展示了如何使用激光雷达传感器进行实时地图构建，并使用A*算法进行路径规划和自主导航。
+这是一个完整的SLAM（同步定位与建图）和路径规划项目，基于Pegasus Simulator开发。该项目支持**2D和3D**两种模式，展示了如何使用激光雷达传感器进行实时地图构建，并使用A*算法进行路径规划和自主导航。
 
 ### 主要功能
 
 1. **实时SLAM建图**
-   - 使用激光雷达数据进行2D占据栅格地图构建
+   - **2D模式**: 使用激光雷达数据进行2D占据栅格地图构建
+   - **3D模式**: 使用3D体素网格（voxel grid）和点云进行完整的3D环境建图
    - 概率方法更新地图（使用对数几率）
    - 支持地图保存和加载
+   - 点云可视化和导出（PLY格式）
 
 2. **A*路径规划**
-   - 基于占据栅格的A*搜索算法
-   - 支持对角线移动（8连通）
+   - **2D模式**: 基于2D占据栅格的A*搜索算法（8连通）
+   - **3D模式**: 完整的3D空间路径规划（26连通），支持高度变化
    - 障碍物膨胀以提供安全边界
    - 路径平滑算法
+   - 优选高度路径规划（能耗优化）
 
 3. **自主导航**
-   - 路径跟踪控制器
+   - **2D模式**: 平面路径跟踪控制器
+   - **3D模式**: 3D路径跟踪，独立控制水平和垂直速度
    - 实时避障
    - 多航点导航支持
+   - 动态重规划
 
 ### 项目结构
 
 ```
 slam_path_planning/
-├── occupancy_grid.py      # 占据栅格地图实现
-├── path_planner.py        # A*路径规划算法
-├── slam_controller.py     # SLAM控制器（整合建图和导航）
-└── README.md             # 本文档
+├── occupancy_grid.py         # 2D占据栅格地图实现
+├── occupancy_grid_3d.py      # 3D体素网格实现
+├── point_cloud_3d.py         # 3D点云存储和处理
+├── path_planner.py           # 2D A*路径规划算法
+├── path_planner_3d.py        # 3D A*路径规划算法
+├── slam_controller.py        # 2D SLAM控制器
+├── slam_controller_3d.py     # 3D SLAM控制器
+├── visualizer.py             # 2D地图可视化
+├── visualizer_3d.py          # 3D点云可视化
+└── README.md                 # 本文档
 
-slam_path_planning_example.py  # 主程序示例
+slam_path_planning_example.py     # 2D主程序示例
+slam_path_planning_3d_example.py  # 3D主程序示例（推荐）
 ```
 
 ### 核心组件详解
@@ -136,8 +148,12 @@ SLAMController(
 
 ```bash
 # 确保已经设置了Isaac Sim环境变量
-# 运行SLAM路径规划示例
+
+# 运行2D SLAM路径规划示例
 isaac_run examples/slam_path_planning_example.py
+
+# 运行3D SLAM路径规划示例（推荐 - 完整3D功能）
+isaac_run examples/slam_path_planning_3d_example.py
 ```
 
 #### 自定义配置
