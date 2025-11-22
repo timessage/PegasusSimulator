@@ -25,7 +25,7 @@ class PointCloudVisualizer3D:
                             points: np.ndarray,
                             colors: Optional[np.ndarray] = None,
                             robot_position: Optional[np.ndarray] = None,
-                            path: Optional[List[Tuple[float, float]]] = None,
+                            path: Optional[List[Tuple[float, float, float]]] = None,
                             title: str = "3D Point Cloud Map",
                             point_size: float = 1.0,
                             save_path: Optional[str] = None):
@@ -36,7 +36,7 @@ class PointCloudVisualizer3D:
             points: Nx3 array of 3D points
             colors: Optional Nx3 array of RGB colors [0-1]
             robot_position: Optional robot position [x, y, z]
-            path: Optional 2D path to visualize
+            path: Optional 3D path to visualize (list of (x, y, z) tuples)
             title: Plot title
             point_size: Size of points in plot
             save_path: If provided, save figure to this path
@@ -65,17 +65,22 @@ class PointCloudVisualizer3D:
                           c='red', s=100, marker='o', label='Robot', 
                           edgecolors='black', linewidths=2)
         
-        # Plot path (project to ground plane)
+        # Plot path (full 3D path)
         if path is not None and len(path) > 0:
             path_array = np.array(path)
-            # Get average ground height from points
-            ground_height = np.percentile(points[:, 2], 5)  # 5th percentile
-            path_3d = np.column_stack([path_array[:, 0], 
-                                      path_array[:, 1], 
-                                      np.full(len(path_array), ground_height)])
+            # Path can be 2D or 3D
+            if path_array.shape[1] == 2:
+                # 2D path, project to ground plane
+                ground_height = np.percentile(points[:, 2], 5) if len(points) > 0 else 0.0
+                path_3d = np.column_stack([path_array[:, 0], 
+                                          path_array[:, 1], 
+                                          np.full(len(path_array), ground_height)])
+            else:
+                # 3D path, use as is
+                path_3d = path_array
             
             self.ax.plot(path_3d[:, 0], path_3d[:, 1], path_3d[:, 2],
-                       'b-', linewidth=3, label='Planned Path')
+                       'b-', linewidth=3, label='Planned 3D Path')
             self.ax.scatter(path_3d[:, 0], path_3d[:, 1], path_3d[:, 2],
                           c='blue', s=50, marker='o', edgecolors='black')
         
@@ -293,22 +298,49 @@ class PointCloudVisualizer3D:
         ax.set_ylim(centers[1] - max_range/2, centers[1] + max_range/2)
         ax.set_zlim(centers[2] - max_range/2, centers[2] + max_range/2)
     
-    @staticmethod
-    def create_animation(point_cloud_sequence: List[np.ndarray],
-                        save_path: str,
+    def create_animation(self,
+                        point_cloud_sequence: List[np.ndarray],
+                        colors_sequence: Optional[List[np.ndarray]] = None,
+                        save_path: str = "point_cloud_animation",
                         fps: int = 10):
         """
-        Create an animated visualization of point cloud evolution.
+        Create an animated visualization of point cloud evolution by saving frames.
+        
+        Note: This saves individual frames. To create a video, use external tools like:
+        - ffmpeg: ffmpeg -r {fps} -i frame_%04d.png -vcodec libx264 animation.mp4
+        - imageio: Requires imageio package for direct video creation
         
         Args:
             point_cloud_sequence: List of point cloud arrays over time
-            save_path: Path to save animation
-            fps: Frames per second
+            colors_sequence: Optional list of color arrays for each frame
+            save_path: Base path for saving frames (without extension)
+            fps: Target frames per second for playback
         """
-        print(f"Animation creation requires additional dependencies (e.g., imageio)")
-        print(f"Sequence has {len(point_cloud_sequence)} frames")
-        # This would require additional dependencies like imageio or matplotlib.animation
-        # For now, just save individual frames
+        if not point_cloud_sequence:
+            print("No point cloud data to animate")
+            return
+        
+        print(f"Creating animation with {len(point_cloud_sequence)} frames")
+        print(f"Saving frames to {save_path}_frame_*.png")
+        
+        # Save each frame
+        for i, points in enumerate(point_cloud_sequence):
+            if len(points) == 0:
+                continue
+            
+            colors = colors_sequence[i] if colors_sequence and i < len(colors_sequence) else None
+            frame_path = f"{save_path}_frame_{i:04d}.png"
+            
+            self.visualize_point_cloud(
+                points=points,
+                colors=colors,
+                title=f"3D Point Cloud Evolution - Frame {i+1}/{len(point_cloud_sequence)}",
+                save_path=frame_path
+            )
+        
+        print(f"\nSaved {len(point_cloud_sequence)} frames")
+        print(f"To create video with ffmpeg:")
+        print(f"  ffmpeg -r {fps} -i {save_path}_frame_%04d.png -vcodec libx264 animation.mp4")
         
 
 def visualize_point_cloud_simple(points: np.ndarray,

@@ -124,7 +124,7 @@ class SLAM3DBackend(Backend):
             visualizer.visualize_point_cloud(
                 points=viz_data['point_cloud_points'],
                 colors=viz_data['point_cloud_colors'],
-                path=[(p[0], p[1]) for p in self.slam.current_path] if self.slam.current_path else None,
+                path=self.slam.current_path,  # Pass full 3D path
                 title="Final 3D SLAM Map",
                 save_path=viz_path
             )
@@ -317,7 +317,7 @@ class SLAM3DBackend(Backend):
                 visualizer.visualize_point_cloud(
                     points=viz_data['point_cloud_points'],
                     colors=viz_data['point_cloud_colors'],
-                    path=[(p[0], p[1]) for p in self.slam.current_path] if self.slam.current_path else None,
+                    path=self.slam.current_path,  # Pass full 3D path
                     title=f"3D SLAM Map at t={self.time:.1f}s",
                     save_path=viz_path
                 )
