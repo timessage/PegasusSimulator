@@ -38,7 +38,19 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'slam_path_planning'))
 
-from slam_controller import SLAMController
+try:
+    from slam_controller import SLAMController
+except ImportError as e:
+    print(f"="*60)
+    print(f"ERROR: Failed to import SLAM modules")
+    print(f"Error: {e}")
+    print(f"="*60)
+    print(f"Please ensure numpy and scipy are installed:")
+    print(f"  Isaac Sim Python: ~/.local/share/ov/pkg/isaac-sim-*/python.sh")
+    print(f"  Run: python.sh -m pip install numpy scipy matplotlib")
+    print(f"="*60)
+    simulation_app.close()
+    exit(1)
 
 class SLAMBackend(Backend):
     """
