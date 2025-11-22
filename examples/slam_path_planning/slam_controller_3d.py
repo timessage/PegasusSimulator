@@ -9,9 +9,9 @@
 import numpy as np
 from typing import List, Tuple, Optional
 from scipy.spatial.transform import Rotation
-from occupancy_grid_3d import OccupancyGrid3D
-from path_planner_3d import AStarPlanner3D
-from point_cloud_3d import PointCloud3D
+from .occupancy_grid_3d import OccupancyGrid3D
+from .path_planner_3d import AStarPlanner3D
+from .point_cloud_3d import PointCloud3D
 
 class SLAMController3D:
     """

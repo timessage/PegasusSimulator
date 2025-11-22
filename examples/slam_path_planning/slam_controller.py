@@ -9,8 +9,8 @@
 import numpy as np
 from typing import List, Tuple, Optional
 from scipy.spatial.transform import Rotation
-from occupancy_grid import OccupancyGrid
-from path_planner import AStarPlanner
+from .occupancy_grid import OccupancyGrid
+from .path_planner import AStarPlanner
 
 class SLAMController:
     """

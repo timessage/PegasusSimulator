@@ -9,7 +9,7 @@
 import numpy as np
 import heapq
 from typing import List, Tuple, Optional
-from occupancy_grid import OccupancyGrid
+from .occupancy_grid import OccupancyGrid
 
 class AStarPlanner:
     """
