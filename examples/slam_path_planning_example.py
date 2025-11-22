@@ -36,10 +36,14 @@ from pegasus.simulator.logic.graphical_sensors.lidar import Lidar
 # Import SLAM components
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'slam_path_planning'))
+
+# Add the parent examples directory to path so we can import slam_path_planning as a package
+examples_dir = os.path.dirname(os.path.abspath(__file__))
+if examples_dir not in sys.path:
+    sys.path.insert(0, examples_dir)
 
 try:
-    from slam_controller import SLAMController
+    from slam_path_planning.slam_controller import SLAMController
 except ImportError as e:
     print(f"="*60)
     print(f"ERROR: Failed to import SLAM modules")
